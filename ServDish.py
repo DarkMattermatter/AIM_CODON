@@ -27,7 +27,7 @@ if not st.session_state.logged_in:
         st.success("Logged in successfully!")
 
 # Main App after Login
-if st.session_state.logged_in:
+if st.session_state.logged_in and not st.session_state.order_confirmed:
     # User Profile Setup
     st.header("Profile Setup")
     name = st.text_input("Name")
@@ -100,3 +100,4 @@ if st.session_state.order_confirmed and not st.session_state.payment_completed:
 if st.session_state.payment_completed:
     st.write("---")
     st.write("Thank you for using ServDish!")
+
