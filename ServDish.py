@@ -1,19 +1,27 @@
 import streamlit as st
 from datetime import datetime
 
-# Title of the App
-st.title("ServDish - Your Personal Chef at Home")
+# Initialize session state variables if they don't exist
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+if 'user_details_completed' not in st.session_state:
+    st.session_state['user_details_completed'] = False
 
-# Login Page
-st.header("Login")
-mobile_number = st.text_input("Mobile Number")
-gmail_account = st.text_input("Gmail Account")
-x_account = st.text_input("X Account (formerly Twitter)")
-login_button = st.button("Login")
+# Function to display the login page
+def login_page():
+    st.header("Login")
+    mobile_number = st.text_input("Mobile Number")
+    gmail_account = st.text_input("Gmail Account")
+    x_account = st.text_input("X Account (formerly Twitter)")
+    login_button = st.button("Login")
 
-if login_button:
-    st.success("Logged in successfully!")
+    if login_button:
+        st.session_state['logged_in'] = True
+        st.success("Logged in successfully!")
+        st.experimental_rerun()  # Redirect to the next page
 
+# Function to display the profile setup and order form
+def order_page():
     # User Profile Setup
     st.header("Profile Setup")
     name = st.text_input("Name")
@@ -35,7 +43,7 @@ if login_button:
     beverage_options = ["Juices", "Smoothies", "Teas", "Coffees", "Soft Drinks"]
     selected_beverages = st.multiselect("Beverages", beverage_options)
 
-    # Order Summary
+    # Order Summary and Confirmation
     if st.button("Review Order"):
         st.header("Order Summary")
         st.write(f"**Name:** {name}")
@@ -70,15 +78,24 @@ if login_button:
 
         if st.button("Confirm Order"):
             st.success(f"Order confirmed for {order_date} at {order_time}! A chef will arrive at your home as scheduled.")
+            st.session_state['user_details_completed'] = True
+            st.experimental_rerun()  # Redirect to the payment page
 
-            # Payment Mode Selection
-            st.header("Payment Mode")
-            payment_modes = ["Cash on Delivery (COD)", "Credit Card", "Debit Card", "Online Banking", "UPI"]
-            selected_payment_mode = st.selectbox("Select Payment Mode", payment_modes)
+# Function to display the payment page
+def payment_page():
+    st.header("Payment Mode")
+    payment_modes = ["Cash on Delivery (COD)", "Credit Card", "Debit Card", "Online Banking", "UPI"]
+    selected_payment_mode = st.selectbox("Select Payment Mode", payment_modes)
 
-            if st.button("Make Payment"):
-                st.success(f"Payment method selected: {selected_payment_mode}. Your order is now complete!")
+    if st.button("Make Payment"):
+        st.success(f"Payment method selected: {selected_payment_mode}. Your order is now complete!")
+        st.write("---")
+        st.write("Thank you for using ServDish!")
 
-# Footer
-st.write("---")
-st.write("Thank you for using ServDish!")
+# Main App Logic
+if not st.session_state['logged_in']:
+    login_page()
+elif not st.session_state['user_details_completed']:
+    order_page()
+else:
+    payment_page()
