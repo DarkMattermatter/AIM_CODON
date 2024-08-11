@@ -45,7 +45,9 @@ if st.session_state.logged_in:
     # Date and Time Selection
     st.header("Select Date and Time for the Service")
     order_date = st.date_input("Select Date", datetime.today())
-    order_time = st.time_input("Select Time", datetime.now().time())
+    # Set a fixed default time for testing
+    default_time = datetime.strptime("12:00", "%H:%M").time()
+    order_time = st.time_input("Select Time", default_time)
 
     # Beverage Selection
     st.header("Choose Your Beverages")
