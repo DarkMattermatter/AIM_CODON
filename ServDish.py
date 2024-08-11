@@ -1,9 +1,12 @@
 import streamlit as st
 from datetime import datetime
 
-# Initialize session state for login status
+# Initialize session state for login status and payment completion
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
+if 'payment_completed' not in st.session_state:
+    st.session_state.payment_completed = False
 
 # Title of the App
 st.title("ServDish - Your Personal Chef at Home")
@@ -85,8 +88,10 @@ if st.session_state.logged_in:
             selected_payment_mode = st.selectbox("Select Payment Mode", payment_modes)
 
             if st.button("Make Payment"):
+                st.session_state.payment_completed = True
                 st.success(f"Payment method selected: {selected_payment_mode}. Your order is now complete!")
 
-# Footer
-st.write("---")
-st.write("Thank you for using ServDish!")
+# Display the footer only after payment is completed
+if st.session_state.payment_completed:
+    st.write("---")
+    st.write("Thank you for using ServDish!")
