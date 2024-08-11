@@ -1,14 +1,24 @@
 import streamlit as st
 from datetime import datetime
 
-# Initialize session state variables if they don't exist
+# Initialize session state for login status and payment completion
 if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
-if 'order_confirmed' not in st.session_state:
-    st.session_state['order_confirmed'] = False
+    st.session_state.logged_in = False
 
-# Function to display the login page
-def login_page():
+if 'order_confirmed' not in st.session_state:
+    st.session_state.order_confirmed = False
+
+if 'payment_completed' not in st.session_state:
+    st.session_state.payment_completed = False
+
+if 'reviewed_order' not in st.session_state:
+    st.session_state.reviewed_order = False
+
+# Title of the App
+st.title("ServDish - Your Personal Chef at Home")
+
+# Login Page
+if not st.session_state.logged_in:
     st.header("Login")
     mobile_number = st.text_input("Mobile Number")
     gmail_account = st.text_input("Gmail Account")
@@ -16,13 +26,11 @@ def login_page():
     login_button = st.button("Login")
 
     if login_button:
-        # Simulate a successful login
-        st.session_state['logged_in'] = True
+        st.session_state.logged_in = True
         st.success("Logged in successfully!")
-        st.experimental_rerun()  # Redirect to the next page
 
-# Function to display the profile setup and order form
-def order_page():
+# Main App after Login
+if st.session_state.logged_in:
     # User Profile Setup
     st.header("Profile Setup")
     name = st.text_input("Name")
@@ -44,18 +52,20 @@ def order_page():
     beverage_options = ["Juices", "Smoothies", "Teas", "Coffees", "Soft Drinks"]
     selected_beverages = st.multiselect("Beverages", beverage_options)
 
-    # Order Summary and Confirmation
+    # Order Summary
     if st.button("Review Order"):
         st.header("Order Summary")
-        st.write(f"**Name:** {name}")
-        st.write(f"**Contact Number:** {contact_number}")
-        st.write(f"**Address:** {address}")
-        st.write(f"**Selected Cuisine:** {selected_cuisine}")
-        st.write(f"**Selected Beverages:** {', '.join(selected_beverages)}")
-        st.write(f"**Service Date:** {order_date}")
-        st.write(f"**Service Time:** {order_time}")
+        st.write(f"Name: {name}")
+        st.write(f"Contact Number: {contact_number}")
+        st.write(f"Address: {address}")
+        st.write(f"Selected Cuisine: {selected_cuisine}")
+        st.write(f"Selected Beverages: {', '.join(selected_beverages)}")
+        st.write(f"Service Date: {order_date}")
+        st.write(f"Service Time: {order_time}")
+        st.session_state.reviewed_order = True
 
-        # Billing Page
+    # Payment Option after reviewing order
+    if st.session_state.reviewed_order:
         st.header("Billing Details")
         chef_cost = 300
         vegetable_cost = st.number_input("Enter Market Vegetable Cost (₹)", min_value=0, value=300)
@@ -68,35 +78,30 @@ def order_page():
         cgst = subtotal * 0.09  # 9% CGST
         total_cost = subtotal + sgst + cgst
 
-        st.write(f"**Chef Cost:** ₹{chef_cost}")
-        st.write(f"**Vegetable Cost:** ₹{vegetable_cost}")
-        st.write(f"**Service Cost:** ₹{service_cost}")
-        st.write(f"**Other Ingredients Cost:** ₹{other_ingredients_cost}")
-        st.write(f"**Delivery Cost:** ₹{delivery_cost}")
-        st.write(f"**SGST (9%):** ₹{sgst:.2f}")
-        st.write(f"**CGST (9%):** ₹{cgst:.2f}")
-        st.write(f"**Total Amount:** ₹{total_cost:.2f}")
+        st.write(f"Chef Cost: ₹{chef_cost}")
+        st.write(f"Vegetable Cost: ₹{vegetable_cost}")
+        st.write(f"Service Cost: ₹{service_cost}")
+        st.write(f"Other Ingredients Cost: ₹{other_ingredients_cost}")
+        st.write(f"Delivery Cost: ₹{delivery_cost}")
+        st.write(f"SGST (9%): ₹{sgst:.2f}")
+        st.write(f"CGST (9%): ₹{cgst:.2f}")
+        st.write(f"Total Amount: ₹{total_cost:.2f}")
 
         if st.button("Confirm Order"):
+            st.session_state.order_confirmed = True
             st.success(f"Order confirmed for {order_date} at {order_time}! A chef will arrive at your home as scheduled.")
-            st.session_state['order_confirmed'] = True
-            st.experimental_rerun()  # Redirect to the payment page
 
-# Function to display the payment page
-def payment_page():
-    st.header("Payment Mode")
-    payment_modes = ["Cash on Delivery (COD)", "Credit Card", "Debit Card", "Online Banking", "UPI"]
-    selected_payment_mode = st.selectbox("Select Payment Mode", payment_modes)
+    # Payment Option after Order Confirmation
+    if st.session_state.order_confirmed and not st.session_state.payment_completed:
+        st.header("Payment Mode")
+        payment_modes = ["Cash on Delivery (COD)", "Credit Card", "Debit Card", "Online Banking", "UPI"]
+        selected_payment_mode = st.selectbox("Select Payment Mode", payment_modes)
 
-    if st.button("Make Payment"):
-        st.success(f"Payment method selected: {selected_payment_mode}. Your order is now complete!")
-        st.write("---")
-        st.write("Thank you for using ServDish!")
+        if st.button("Make Payment"):
+            st.session_state.payment_completed = True
+            st.success(f"Payment method selected: {selected_payment_mode}. Your order is now complete!")
 
-# Main App Logic
-if not st.session_state['logged_in']:
-    login_page()
-elif not st.session_state['order_confirmed']:
-    order_page()
-else:
-    payment_page()
+# Display the footer only after payment is completed
+if st.session_state.payment_completed:
+    st.write("---")
+    st.write("Thank you for using ServDish!")
