@@ -71,6 +71,14 @@ if login_button:
         if st.button("Confirm Order"):
             st.success(f"Order confirmed for {order_date} at {order_time}! A chef will arrive at your home as scheduled.")
 
+            # Payment Mode Selection
+            st.header("Payment Mode")
+            payment_modes = ["Cash on Delivery (COD)", "Credit Card", "Debit Card", "Online Banking", "UPI"]
+            selected_payment_mode = st.selectbox("Select Payment Mode", payment_modes)
+
+            if st.button("Make Payment"):
+                st.success(f"Payment method selected: {selected_payment_mode}. Your order is now complete!")
+
 # Footer
 st.write("---")
 st.write("Thank you for using ServDish!")
