@@ -16,6 +16,7 @@ def login_page():
     login_button = st.button("Login")
 
     if login_button:
+        # Simulate a successful login
         st.session_state['logged_in'] = True
         st.success("Logged in successfully!")
         st.experimental_rerun()  # Redirect to the next page
